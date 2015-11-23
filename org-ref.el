@@ -90,7 +90,18 @@ You should use full-paths for each file."
   :group 'org-ref)
 
 (defcustom org-ref-note-title-format
-  "** TODO %y - %t"
+  "** TODO %y - %t
+ :PROPERTIES:
+  :Custom_ID: %k
+  :AUTHOR: %9a
+  :JOURNAL: %j
+  :YEAR: %y
+  :VOLUME: %v
+  :PAGES: %p
+  :DOI: %D
+  :URL: %U
+ :END:
+cite:%k\n"
   "String to format the title of a note. See the `org-ref-reftex-format-citation' docstring for the escape codes."
   :type 'string
   :group 'org-ref)
@@ -2261,22 +2272,6 @@ construct the heading by hand."
 	  (funcall org-ref-open-notes-function)
 	;; no entry found, so add one
 	(insert (org-ref-reftex-format-citation entry (concat "\n" org-ref-note-title-format)))
-	(insert (org-ref-reftex-format-citation
-		 entry
-		 (concat "
- :PROPERTIES:
-  :Custom_ID: %k
-  :AUTHOR: %9a
-  :JOURNAL: %j
-  :YEAR: %y
-  :VOLUME: %v
-  :PAGES: %p
-  :DOI: %D
-  :URL: %U
- :END:
-"
-			 (format "[[cite:%s]] [[file:%s/%s.pdf][pdf]]\n\n"
-				 key (file-name-as-directory org-ref-pdf-directory) key))))
 	(save-buffer)))))
   
 (defun org-ref-open-notes-from-reftex ()
