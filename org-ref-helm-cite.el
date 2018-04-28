@@ -275,8 +275,18 @@ SOURCE is ignored, but required."
 		 '(("Add keywords" . org-ref-helm-cite-set-keywords)
 		   ("copy to clipboard" . org-ref-helm-cite-copy-entries)
 		   ("email" . org-ref-helm-cite-email-entries)
-		   ("Insert formatted entries" . orhc-insert-formatted-citations)
-		   ("Copy formatted entry" . orhc-copy-formatted-citations))))
+		   ("Insert formatted entries" . (lambda (_)
+						   (insert
+						    (mapconcat 'identity
+							       (cl-loop for key in (helm-marked-candidates)
+								        collect (org-ref-format-entry key))
+							       "\n\n"))))
+		   ("Copy formatted entry" . (lambda (_)
+					       (kill-new
+						(mapconcat 'identity
+							   (cl-loop for key in (helm-marked-candidates)
+								    collect (org-ref-format-entry key))
+							   "\n\n")))))))
 
   ;; this is where we could add WOK/scopus functions
   actions)
@@ -540,13 +550,7 @@ Checks for pdf and doi, and add appropriate functions."
   (let* ((results (org-ref-get-bibtex-key-and-file))
          (key (car results))
          (bibfile (cdr results))
-	 (pdf-file (funcall org-ref-get-pdf-filename-function key)) 
-	 (entry (save-excursion
-		  (with-temp-buffer
-		    (insert-file-contents bibfile)
-		    (bibtex-set-dialect (parsebib-find-bibtex-dialect) t)
-		    (bibtex-search-entry key)
-		    (bibtex-parse-entry t))))
+	 (pdf-file (funcall org-ref-get-pdf-filename-function key))
          (url (save-excursion
                 (with-temp-buffer
                   (insert-file-contents bibfile)
@@ -718,7 +722,7 @@ action.  most of them need the point and buffer.
 
 KEY is returned for the selected item(s) in helm."
   (interactive)
-  (let ((name (org-ref-get-citation-string-at-point))
+  (let ((name (org-ref-format-entry (org-ref-get-bibtex-key-under-cursor)))
         (candidates (org-ref-helm-cite-candidates))
         (cb (current-buffer)))
 

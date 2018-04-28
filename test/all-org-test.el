@@ -58,64 +58,6 @@
     '(a c b)
     (org-ref-swap-keys 1 2 '(a b c)))))
 
-(ert-deftest test-8 ()
-  (org-test-with-temp-text
-      (format "cite:kitchin-2015-examp 
-
-bibliography:%s
-" (expand-file-name
-   "tests/test-1.bib"
-   (file-name-directory
-    (locate-library "org-ref"))))
-    (should
-     (string=
-      (org-ref-link-message)
-      (if (featurep 'bibtex-completion)
-	  "Kitchin, J. R. (2015). Examples of effective data sharing in scientific publishing. ACS Catalysis, 5(6), 3894–3899."
-	"Kitchin, John R., \"Examples of Effective Data Sharing in Scientific Publishing\", ACS Catalysis, 5:3894-3899 (2015)")))))
-
-(ert-deftest test-9 ()
-  (org-test-with-temp-text
-      (format "cite:kitchin-2015
-
-bibliography:%s
-"
-	      (expand-file-name
-	       "tests/test-1.bib"
-	       (file-name-directory
-		(locate-library "org-ref"))))
-    (should 
-     (string= "!!! No entry found !!!"
-	      (org-ref-link-message)))))
-
-(ert-deftest orlm ()
-  (org-test-with-temp-text
-      (format "cite:kitchin-2015-examp
-
-bibliography:%s
-" (expand-file-name
-   "tests/test-1.bib"
-   (file-name-directory
-    (locate-library "org-ref"))))
-    (should
-     (string= (org-ref-link-message)
-	      (if (featurep 'bibtex-completion)
-		  "Kitchin, J. R. (2015). Examples of effective data sharing in scientific publishing. ACS Catalysis, 5(6), 3894–3899."
-		"Kitchin, John R., \"Examples of Effective Data Sharing in Scientific Publishing\", ACS Catalysis, 5:3894-3899 (2015)")))))
-
-(ert-deftest orlm-nil ()
-  (org-test-with-temp-text
-      (format "cite:kitchin-2015
-
-bibliography:%s
-" (expand-file-name
-   "tests/test-1.bib"
-   (file-name-directory
-    (locate-library "org-ref"))))
-    (should
-     (string= "!!! No entry found !!!"
-	      (org-ref-link-message)))))
-
 (ert-deftest orlm-ref-1 ()
   (should
    (string=
@@ -211,7 +153,7 @@ label:one
     (expand-file-name
      "tests/bibtex-pdfs/kitchin-2015.pdf"
      (file-name-directory
-      (locate-library "org-ref"))) 
+      (locate-library "org-ref")))
     (org-test-with-temp-text
 	"cite:kitchin-2015"
       (let ((org-ref-pdf-directory (expand-file-name
@@ -344,7 +286,7 @@ label:one
 			(expand-file-name
 			 "tests/test-1.bib"
 			 (file-name-directory
-			  (locate-library "org-ref"))))	      
+			  (locate-library "org-ref"))))
 	      (org-ref-find-bibliography))))))
 
 (ert-deftest orfb-3a ()
@@ -360,7 +302,8 @@ label:one
 	   (file-name-directory
 	    (locate-library "org-ref"))))
     (org-test-with-temp-text
-	(format "\\addbibresource{%s,%s}"
+	(format "\\addbibresource{%s}
+\\addbibresource{%s}"
 		(expand-file-name
 		 "tests/test-1.bib"
 		 (file-name-directory
@@ -368,7 +311,7 @@ label:one
 		(expand-file-name
 		 "tests/test-2.bib"
 		 (file-name-directory
-		  (locate-library "org-ref"))))	      
+		  (locate-library "org-ref"))))
       (org-ref-find-bibliography)))))
 
 (ert-deftest orfb-4 ()
@@ -424,7 +367,7 @@ bibliography:%s
 
 (ert-deftest short-titles ()
   (org-ref-bibtex-generate-shorttitles)
-  (prog1 
+  (prog1
       (should
        (file-exists-p "shorttitles.bib"))
     (delete-file "shorttitles.bib")))
@@ -961,28 +904,6 @@ date_added =	 {Mon Jun 1 09:11:23 2015},
 "
       (org-ref-get-custom-ids)))))
 
-(ert-deftest get-labels-5 ()
-  (should
-   (= 5
-      (length
-       (org-test-with-temp-text
-	   "* header
-:PROPERTIES:
-:CUSTOM_ID: test
-:END:
-
-#+tblname: one
-| 3 |
-
-** subsection \\label{three}
-:PROPERTIES:
-:CUSTOM_ID: two
-:END: 
-
-label:four
-"
-	 (org-ref-get-labels))))))
-
 (ert-deftest bad-cites ()
   (should
    (= 2
@@ -1188,7 +1109,7 @@ bibliography:%s
 "
 	     (expand-file-name
 	      "tests/test-1.bib"
-	      (file-name-directory (locate-library "org-ref")))) 
+	      (file-name-directory (locate-library "org-ref"))))
 	    (org-test-with-temp-text
 		(format
 		 "cite:kitchin-2008-alloy,kitchin-2004-role
@@ -1396,7 +1317,7 @@ bibliography:%s
 			       "org-ref"))))))
      (string= "/Users/jkitchin/Dropbox/bibliography/bibtex-pdfs/abild-pedersen-2007-scalin-proper.pdf"
 	      (org-test-with-temp-text
-		  bibstring	      
+		  bibstring
 		""
 		(org-ref-get-mendeley-filename "Abild-Pedersen2007"))))))
 
@@ -1413,7 +1334,7 @@ bibliography:tests/test-1.bib
       (should
        (= 27 (point))))))
 
-(ert-deftest cite-face ()
+(ert-deftest cite-face-1 ()
   (org-test-with-temp-text
       "cite:kitchin-2015-examp
 
@@ -1427,14 +1348,14 @@ bibliography:tests/test-1.bib
 	 (org-ref-match-next-ref-link (0  'org-ref-ref-face t))
 	 (org-ref-match-next-bibliography-link (0  'org-link t))
 	 (org-ref-match-next-bibliographystyle-link (0  'org-link t)))
-       t)) 
+       t))
     (org-mode)
     (font-lock-fontify-region (point-min) (point-max))
     (describe-text-properties 1)
     ;; (should (eq 'org-ref-cite-face (get-char-property 1 'face)))
     ))
 
-(ert-deftest cite-face ()
+(ert-deftest cite-face-2 ()
   (org-test-with-temp-text
       "# cite:kitchin-2015-examp
 
@@ -1444,7 +1365,7 @@ bibliography:tests/test-1.bib
       (font-lock-add-keywords
        nil
        '((org-ref-match-next-cite-link (0  'org-ref-cite-face t)))
-       t)) 
+       t))
     (font-lock-fontify-region (point-min) (point-max))
     (should (not (eq 'org-ref-cite-face (get-char-property 5 'face))))))
 
@@ -1468,20 +1389,6 @@ bibliography:tests/test-1.bib
       (org-ref-match-next-ref-link nil)
       (should
        (= 11 (point))))))
-
-(ert-deftest ref-face ()
-  (org-test-with-temp-text
-      " ref:kitchin-2015-examp
-
-bibliography:tests/test-1.bib
-"
-    (unless (fboundp 'org-link-set-parameters) 
-      (font-lock-add-keywords
-       nil
-       '((org-ref-match-next-ref-link (0  'org-ref-ref-face t)))
-       t)) 
-    (font-lock-fontify-region (point-min) (point-max))
-    (should (eq 'org-ref-ref-face (get-char-property 2 'face)))))
 
 (ert-deftest fl-next-label ()
   (org-test-with-temp-text
@@ -1598,4 +1505,3 @@ keywords =	 {DESC0004031, early-career, orgmode, Data sharing },
 eprint =	 { http://dx.doi.org/10.1021/acscatal.5b00538 },
 }")
 		     (car (org-ref-store-bibtex-entry-link))))))
-
