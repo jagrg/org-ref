@@ -54,7 +54,10 @@
 (require 'dash)
 (require 'json)
 (require 'org)                          ; org-add-link-type
-(require 'org-bibtex)                   ; org-bibtex-yank
+
+(or (require 'ol-bibtex nil t)
+    (require 'org-bibtex)) ; org-bibtex-yank
+
 (require 'url-http)
 (require 'org-ref-utils)
 
@@ -846,6 +849,9 @@ MATCHING-TYPES."
 (doi-utils-def-bibtex-type inbook ("chapter" "book-chapter" "reference-entry")
                            author title booktitle series publisher year pages doi url)
 
+(doi-utils-def-bibtex-type misc ("posted-content")
+			   author title year doi url)
+
 
 
 ;; With the code generating the bibtex entry in place, we can glue it to the json retrieval code.
@@ -1500,6 +1506,16 @@ error."
 
 (defalias 'crossref-add-bibtex-entry 'doi-utils-add-entry-from-crossref-query
   "Alias function for convenience.")
+
+;; * Convenience
+
+(defun doi-utils-toggle-pdf-download ()
+  "Toggle the setting of `doi-utils-download-pdf'.
+I find this useful when downloading the pdfs slows down adding a
+lot of references; then you just toggle it off."
+  (interactive)
+  (message "Setting doi-utils-download-pdf to %s"
+	   (setq doi-utils-download-pdf (not doi-utils-download-pdf))))
 
 ;;* The end
 (provide 'doi-utils)
